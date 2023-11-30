@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  build:
+    on-failure: ABORT
+    commands:
+      - cd ${CODEBUILD_SRC_DIR}
+      - |-
+        case ${ACTION} in
+          "VALIDATE")
+            echo "==== Running: Terraform Validate ===="
+            terraform init
+            terraform validate
+
+            echo "==== Running: TFLINT ===="
+            tflint --init
+            tflint
+
+            echo "==== Running: Checkov ===="
+            checkov --framework terraform -d .
+
+            echo "==== Running: TFSEC ===="
+            tfsec .
+            ;;
+          "PLAN")
+            echo "==== Running: Terraform Plan ===="
+            terraform init
+            terraform plan -out=tfplan -input=false -no-color
+            terraform show -json tfplan > tfplan.json
+            ;;
+          "APPLY")
+            echo "==== Running: Terraform Apply ===="
+            terraform init
+            terraform apply -no-color -auto-approve tfplan
+            ;;
+        esac
+
+artifacts:
+  files:
+    - "**/*"
