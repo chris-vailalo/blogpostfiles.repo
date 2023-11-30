@@ -302,36 +302,6 @@ resource "aws_kms_key_policy" "it" {
 # CodeBuild
 ################################################################################
 
-resource "aws_codebuild_project" "it" {
-  name                   = "codebuild_project"
-  service_role           = aws_iam_role.codebuild.arn
-  concurrent_build_limit = 1
-
-  environment {
-    type                        = "LINUX_CONTAINER"
-    image                       = "${aws_ecr_repository.it.repository_url}:custom-pipeline-image"
-    compute_type                = "BUILD_GENERAL1_SMALL"
-    image_pull_credentials_type = "SERVICE_ROLE"
-    privileged_mode             = false
-  }
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = file("${path.module}/buildspec.yaml")
-  }
-
-  logs_config {
-    cloudwatch_logs {
-      group_name = aws_cloudwatch_log_group.it.name
-      status     = "ENABLED"
-    }
-  }
-}
-
 #validate
 resource "aws_codebuild_project" "validate" {
   name                   = "codebuild_project_validate"
