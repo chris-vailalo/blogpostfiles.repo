@@ -1,4 +1,0 @@
-{
-  "dceApiGw": "https://ll9q6yxat8.execute-api.us-east-1.amazonaws.com/api",
-  "dceLeasesTable": "LeasesDce"
-}
